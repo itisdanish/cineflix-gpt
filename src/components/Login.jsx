@@ -1,13 +1,32 @@
-// Login.js
+import checkValidData from '../utils/validate';
 import Header from './Header';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+
+  const email = useRef(null);
+  const password = useRef(null);
+
+  const handleButtonClick = () => {
+    const message = checkValidData(email.current.value, password.current.value);
+    setErrorMessage(message); // set error message
+    if (!message) {
+      console.log(
+        '✅ Form submitted:',
+        email.current.value,
+        password.current.value
+      );
+      // API call logic here
+    }
+  };
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
+    setErrorMessage(null); // clear errors when switching form
   };
+
   return (
     <main className='relative h-screen w-full'>
       {/* Background */}
@@ -29,51 +48,44 @@ const Login = () => {
           {isSignInForm ? 'Sign In' : 'Sign Up'}
         </h1>
 
-        <form className='flex flex-col gap-4'>
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className='flex flex-col gap-4'
+        >
           {!isSignInForm && (
-            <div>
-              <label htmlFor='fullName' className='sr-only'>
-                Full Name
-              </label>
-              <input
-                id='fullName'
-                type='text'
-                placeholder='Full Name'
-                className='w-full p-3 bg-gray-800 rounded outline-none focus:ring-2 focus:ring-red-600'
-                required
-              />
-            </div>
+            <input
+              id='fullName'
+              type='text'
+              placeholder='Full Name'
+              className='w-full p-3 bg-gray-800 rounded outline-none focus:ring-2 focus:ring-red-600'
+            />
           )}
 
-          <div>
-            <label htmlFor='email' className='sr-only'>
-              Email Address
-            </label>
-            <input
-              id='email'
-              type='email'
-              placeholder='Email Address'
-              className='w-full p-3 bg-gray-800 rounded outline-none focus:ring-2 focus:ring-red-600'
-              required
-            />
-          </div>
+          <input
+            ref={email}
+            id='email'
+            type='email'
+            placeholder='Email Address'
+            className='w-full p-3 bg-gray-800 rounded outline-none focus:ring-2 focus:ring-red-600'
+          />
 
-          <div>
-            <label htmlFor='password' className='sr-only'>
-              Password
-            </label>
-            <input
-              id='password'
-              type='password'
-              placeholder='Password'
-              className='w-full p-3 bg-gray-800 rounded outline-none focus:ring-2 focus:ring-red-600'
-              required
-            />
-          </div>
+          <input
+            ref={password}
+            id='password'
+            type='password'
+            placeholder='Password'
+            className='w-full p-3 bg-gray-800 rounded outline-none focus:ring-2 focus:ring-red-600'
+          />
+
+          {/* 🔴 Error message */}
+          {errorMessage && (
+            <p className='text-red-500 text-sm font-medium'>{errorMessage}</p>
+          )}
 
           <button
             type='submit'
             className='w-full bg-red-600 hover:bg-red-700 transition-colors p-3 rounded font-semibold'
+            onClick={handleButtonClick}
           >
             {isSignInForm ? 'Sign In' : 'Sign Up'}
           </button>
@@ -101,7 +113,7 @@ const Login = () => {
             </>
           ) : (
             <>
-              Already registered ?{' '}
+              Already registered?{' '}
               <button
                 className='text-white hover:underline font-medium'
                 onClick={toggleSignInForm}
