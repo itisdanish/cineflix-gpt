@@ -1,6 +1,11 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import checkValidData from '../utils/validate';
 import Header from './Header';
 import { useState, useRef } from 'react';
+import { auth } from '../utils/firebase';
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -12,13 +17,43 @@ const Login = () => {
   const handleButtonClick = () => {
     const message = checkValidData(email.current.value, password.current.value);
     setErrorMessage(message); // set error message
-    if (!message) {
-      console.log(
-        '✅ Form submitted:',
+    if (message) return;
+    // API call logic here
+
+    if (!isSignInForm) {
+      // sign up
+      createUserWithEmailAndPassword(
+        auth,
         email.current.value,
         password.current.value
-      );
-      // API call logic here
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+          setErrorMessage(errorCode + ' ' + errorMessage);
+        });
+    } else {
+      // Sign in Logic
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
     }
   };
 
